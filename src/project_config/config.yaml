@@ -1,4 +1,5 @@
 data_folder: "../data"
+dataset_artifact_name: "lsun-bedroom-data"
 cache_folder: "../data/cache"
 sweep_config_folder: "configs/sweeps"
 single_run_config_folder: "configs/single_runs"

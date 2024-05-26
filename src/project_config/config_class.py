@@ -7,7 +7,9 @@ class Config:
     """
     Configuration class for the project.
     """
+
     data_folder: str
+    dataset_artifact_name: str
     cache_folder: str
     sweep_config_folder: str
     single_run_config_folder: str
