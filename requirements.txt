@@ -1,0 +1,14 @@
+torch
+torchvision
+torchaudio
+jupyter
+notebook
+wandb
+tqdm
+lightning
+torchmetrics
+numpy
+pandas
+scikit-learn
+matplotlib
+diffusers

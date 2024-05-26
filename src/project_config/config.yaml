@@ -1,0 +1,7 @@
+data_folder: "../data"
+cache_folder: "../data/cache"
+sweep_config_folder: "configs/sweeps"
+single_run_config_folder: "configs/single_runs"
+
+project: "DL_PROJECT_DIFFUSION"
+entity: "dl-mini"
