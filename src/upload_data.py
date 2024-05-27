@@ -1,13 +1,26 @@
 import os
 import zipfile
 from pathlib import Path
+from contextlib import contextmanager
 
 import wandb
 
 from project_config import config, ArtifactType, JobType
 
 
-def upload_data():
+@contextmanager
+def create_temp_zip(image_paths: [str], zip_filename: str) -> None:
+    """Creates a temporary zip file with the images and deletes it after use."""
+    try:
+        with zipfile.ZipFile(zip_filename, "w") as f:
+            for image_path in image_paths:
+                f.write(image_path)
+        yield
+    finally:
+        os.remove(zip_filename)
+
+
+def upload_data() -> None:
     """Uploads raw data to W&B in a zip file."""
     with wandb.init(
         project=config.project, entity=config.entity, job_type=JobType.UPLOAD_DATA.value
@@ -23,22 +36,10 @@ def upload_data():
 
         # Zip all the images
         zip_filename = f"{config.dataset_artifact_name}.zip"
-        print("Zipping images...", end="")
-        with zipfile.ZipFile(zip_filename, "w") as f:
-            for image_path in image_paths:
-                f.write(image_path)
-        print("DONE")
-
-        # Add the zip file to the artifact
-        artifact.add_file(zip_filename)
-
-        # Upload to W&B
-        print("Uploading artifact...", end="")
-        run.log_artifact(artifact)
-        print("DONE")
-
-        # Clean up
-        os.remove(zip_filename)
+        with create_temp_zip(image_paths, zip_filename):
+            # Add the zip file to the artifact and upload to W&B
+            artifact.add_file(zip_filename)
+            run.log_artifact(artifact)
 
 
 if __name__ == "__main__":
