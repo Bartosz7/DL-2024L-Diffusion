@@ -1,7 +1,9 @@
-from pathlib import Path
-import zipfile
 import os
+import zipfile
+from pathlib import Path
+
 import wandb
+
 from project_config import config, ArtifactType, JobType
 
 
