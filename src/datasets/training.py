@@ -1,10 +1,12 @@
 import os
 import sys
+
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
+
 from project_config import config
 from .utils import download_data
 

@@ -1,9 +1,11 @@
 import os
 import zipfile
 import shutil
-from glob import glob
 import numpy as np
+from glob import glob
+
 from lightning.pytorch.loggers import WandbLogger
+
 from project_config import config, ArtifactType, JobType
 
 
