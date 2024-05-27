@@ -11,13 +11,14 @@ from project_config import config, ArtifactType, JobType
 @contextmanager
 def create_temp_zip(image_paths: [str], zip_filename: str) -> None:
     """Creates a temporary zip file with the images and deletes it after use."""
+    zip_filepath = os.path.join(config.data_folder, zip_filename)
     try:
-        with zipfile.ZipFile(zip_filename, "w") as f:
+        with zipfile.ZipFile(zip_filepath, "w") as f:
             for image_path in image_paths:
                 f.write(image_path)
         yield
     finally:
-        os.remove(zip_filename)
+        os.remove(zip_filepath)
 
 
 def upload_data() -> None:
