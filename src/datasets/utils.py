@@ -87,12 +87,3 @@ def upload_data():
 
         # Clean up
         os.remove(zip_filename)
-
-
-if __name__ == "__main__":
-    pass
-    # for testing upload
-    # upload_data()
-    # for testing download
-    # with wandb.init(project=config.project, entity=config.entity) as run:
-    #     download_data(run)
