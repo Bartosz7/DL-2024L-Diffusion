@@ -13,11 +13,29 @@ from .utils import download_data
 
 class TrainingDataset(pl.LightningDataModule):
 
-    def __init__(self, wandb_logger: WandbLogger, batch_size: int):
+    def __init__(
+        self,
+        wandb_logger: WandbLogger,
+        batch_size: int,
+        transform: transforms.Compose | None,
+    ):
         super().__init__()
         self.logger = wandb_logger
         self.batch_size = batch_size
         self.train: ImageFolder | None = None
+        self.transform = transforms.Compose(
+            [
+                transforms.Resize(128, 128),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    config.dataset_color_mean, config.dataset_color_std
+                ),
+            ]
+        )
+        if transforms is not None:
+            self.transform = transforms.Compose[
+                *self.transform.transforms, *transform.transforms
+            ]
 
     @property
     def data_loader_kwargs(self) -> dict:
@@ -40,5 +58,5 @@ class TrainingDataset(pl.LightningDataModule):
             self.train,
             batch_size=self.batch_size,
             **self.data_loader_kwargs,
-            shuffle=True
+            shuffle=True,
         )
