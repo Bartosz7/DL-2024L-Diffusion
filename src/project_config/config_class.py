@@ -17,6 +17,9 @@ class Config:
     project: str
     entity: str
 
+    dataset_color_mean: float
+    dataset_color_std: float
+
     @classmethod
     def from_yaml(cls, path: str) -> "Config":
         """
