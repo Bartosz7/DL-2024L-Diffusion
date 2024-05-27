@@ -10,6 +10,7 @@ from .utils import download_data
 
 
 class TrainingDataset(pl.LightningDataModule):
+
     def __init__(self, wandb_logger: WandbLogger, batch_size: int):
         super().__init__()
         self.logger = wandb_logger
@@ -37,4 +38,5 @@ class TrainingDataset(pl.LightningDataModule):
             self.train,
             batch_size=self.batch_size,
             **self.data_loader_kwargs,
+            shuffle=True
         )
