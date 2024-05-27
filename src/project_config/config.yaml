@@ -7,5 +7,5 @@ single_run_config_folder: "configs/single_runs"
 project: "DL_PROJECT_DIFFUSION"
 entity: "dl-mini"
 
-dataset_color_mean: 0.5
-dataset_color_std: 0.5
+dataset_color_mean: [0.5, 0.5, 0.5]
+dataset_color_std: [0.5, 0.5, 0.5]
