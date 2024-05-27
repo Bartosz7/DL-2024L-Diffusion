@@ -6,10 +6,10 @@ from glob import glob
 
 from lightning.pytorch.loggers import WandbLogger
 
-from project_config import config, ArtifactType, JobType
+from project_config import config, ArtifactType
 
 
-def unzip_to_cache(zip_path: str):
+def unzip_to_cache(zip_path: str) -> None:
     """Overwrites the local cache with newly downloaded data"""
     # Remove the content of the existing cache
     shutil.rmtree(config.cache_folder, ignore_errors=True)
@@ -33,7 +33,7 @@ def unzip_to_cache(zip_path: str):
     shutil.rmtree(os.path.join(config.cache_folder, "data"), ignore_errors=True)
 
 
-def download_data(wandb_logger: WandbLogger) -> tuple[np.ndarray, np.ndarray]:
+def download_data(wandb_logger: WandbLogger) -> None:
     data_artifact = wandb_logger.use_artifact(
         f"{config.dataset_artifact_name}:latest", type=ArtifactType.DATASET.value
     )
