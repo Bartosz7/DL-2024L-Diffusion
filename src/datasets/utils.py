@@ -1,14 +1,9 @@
-import sys
 import os
-from glob import glob
 import zipfile
 import shutil
-
-from lightning.pytorch.loggers import WandbLogger
+from glob import glob
 import numpy as np
-
-# FIXME: my imports got messy for some reason, try without line below
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from lightning.pytorch.loggers import WandbLogger
 from project_config import config, ArtifactType, JobType
 
 
