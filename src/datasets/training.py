@@ -17,7 +17,7 @@ class TrainingDataset(pl.LightningDataModule):
         self,
         wandb_logger: WandbLogger,
         batch_size: int,
-        transform: transforms.Compose | None,
+        transform: transforms.Compose | None = None,
     ):
         super().__init__()
         self.logger = wandb_logger
@@ -48,10 +48,7 @@ class TrainingDataset(pl.LightningDataModule):
 
     def prepare_data(self) -> None:
         download_data(self.logger)
-        transform = transforms.Compose(
-            [transforms.Resize(128, 128), transforms.ToTensor()]
-        )
-        self.train = ImageFolder(config.cache_folder, transform=transform)
+        self.train = ImageFolder(config.cache_folder, transform=self.transform)
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
