@@ -1,15 +1,12 @@
-from torch.utils.data import TensorDataset, DataLoader
-import lightning.pytorch as pl
-from lightning.pytorch.loggers import WandbLogger
-import torch
 import os
 import sys
+import lightning.pytorch as pl
+from lightning.pytorch.loggers import WandbLogger
 from torchvision import transforms
-from torch.utils.data import DataLoader, ImageFolder
-from .utils import download_data
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
 from project_config import config
+from .utils import download_data
 
 
 class TrainingDataset(pl.LightningDataModule):
@@ -17,7 +14,7 @@ class TrainingDataset(pl.LightningDataModule):
         super().__init__()
         self.logger = wandb_logger
         self.batch_size = batch_size
-        self.train: TensorDataset | None = None
+        self.train: ImageFolder | None = None
 
     @property
     def data_loader_kwargs(self) -> dict:
