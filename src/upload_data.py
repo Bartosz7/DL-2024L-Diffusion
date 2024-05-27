@@ -32,7 +32,6 @@ def upload_data() -> None:
         )
         # Load image files
         image_paths = list(Path(config.data_folder).rglob("*.jpg"))
-        image_paths = image_paths[:100000]  # TODO: remove this line
 
         # Zip all the images
         zip_filename = f"{config.dataset_artifact_name}.zip"
