@@ -136,6 +136,7 @@ class LightningModel(pl.LightningModule):
         reconstructed_images = noisy_images - noise_preds
 
         self.log('train/loss', loss, on_epoch=True, on_step=True)
+        print(denormalize(images).shape, denormalize(reconstructed_images).shape)
         self.fid_metric(denormalize(images), real=True)
         self.fid_metric(denormalize(reconstructed_images), real=False)
         self.log('train/fid', self.fid_metric, on_epoch=True, on_step=True)
