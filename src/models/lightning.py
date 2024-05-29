@@ -139,7 +139,7 @@ class LightningModel(pl.LightningModule):
         print(denormalize(images).shape, denormalize(reconstructed_images).shape)
         self.fid_metric(denormalize(images), real=True)
         self.fid_metric(denormalize(reconstructed_images), real=False)
-        self.log('train/fid', self.fid_metric, on_epoch=True, on_step=True)
+        self.log('train/fid', self.fid_metric.compute(), on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
 
         return loss
