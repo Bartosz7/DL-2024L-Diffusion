@@ -8,7 +8,7 @@ import torchmetrics
 import lightning.pytorch as pl
 import numpy as np
 import wandb
-from diffusers import DDPMScheduler, DDPMPipeline
+from diffusers import DDPMScheduler
 from torchvision.utils import make_grid
 from diffusers.optimization import get_cosine_schedule_with_warmup
 
@@ -32,7 +32,6 @@ class LightningModel(pl.LightningModule):
         num_training_steps: int,  # total number of steps in training
         num_inference_steps: int,  # how many noise steps to use during inference
         fid_sample_size: int,  # how many images to use for FID calculation
-
         denoise_seed: int = 42,
         upload_best_model: bool = True,
     ):
@@ -96,7 +95,7 @@ class LightningModel(pl.LightningModule):
             metadata=metadata
         )
 
-        with artifact.new_file(os.path.basename(filename), mode="wb") as file:
+        with artifact.new_file(filename, mode="wb") as file:
             torch.save(self.state_dict(), file)
 
         return self.logger.experiment.log_artifact(artifact)

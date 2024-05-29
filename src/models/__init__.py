@@ -1,1 +1,1 @@
-from diffusers import UNet2DModel, UNet2DConditionModel
+from diffusers import UNet2DModel
