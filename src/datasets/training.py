@@ -26,14 +26,14 @@ class TrainingDataset(pl.LightningDataModule):
         self.train: ImageFolder | None = None
         self.transform = transforms.Compose(
             [
-                transforms.Resize(image_size),
+                transforms.Resize((image_size, image_size)),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     config.dataset_color_mean, config.dataset_color_std
                 ),
             ]
         )
-        if transforms is not None:
+        if transform is not None:
             self.transform = transforms.Compose[
                 *self.transform.transforms, *transform.transforms
             ]

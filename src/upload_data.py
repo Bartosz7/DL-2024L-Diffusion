@@ -38,8 +38,11 @@ def upload_data() -> None:
         zip_filename = f"{config.dataset_artifact_name}.zip"
         with create_temp_zip(image_paths, zip_filename):
             # Add the zip file to the artifact and upload to W&B
-            artifact.add_file(zip_filename)
-            run.log_artifact(artifact)
+            artifact.add_file(
+                os.path.join(config.data_folder, zip_filename), zip_filename
+            )
+
+        run.log_artifact(artifact)
 
 
 if __name__ == "__main__":
