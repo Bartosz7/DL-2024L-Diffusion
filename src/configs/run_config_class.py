@@ -23,6 +23,7 @@ class RunConfig:
     num_training_steps: int = 1000
     num_inference_steps: int = 1000
     eval_size: int = 16
+    matmul_precision: str = "medium"
 
     model_class: Type[nn.Module]
     model_params: dict
