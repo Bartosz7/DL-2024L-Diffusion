@@ -4,20 +4,21 @@ from lightning.pytorch.callbacks import LearningRateMonitor
 
 from project_config import config
 from configs.run_config_class import RunConfig
+from datasets.training import TrainingDataset
 
 
 def prepare_session(
     run_config: RunConfig,
     wandb_logger: WandbLogger,
-) -> tuple[pl.Trainer, None, None]:  # TODO: model and dataset to be implemented
-    data = None  # TODO: add loading data here
+) -> tuple[pl.Trainer, None, TrainingDataset]:
+    data = TrainingDataset(wandb_logger, run_config.batch_size, run_config.image_size)
 
-    lr_monitor = LearningRateMonitor(logging_interval='epoch')
+    lr_monitor = LearningRateMonitor(logging_interval="epoch")
     trainer = pl.Trainer(
         logger=wandb_logger,
         log_every_n_steps=10,
         max_epochs=config["epochs"],
-        callbacks=[lr_monitor]
+        callbacks=[lr_monitor],
     )
 
     pl_model = None  # TODO: add creating model here

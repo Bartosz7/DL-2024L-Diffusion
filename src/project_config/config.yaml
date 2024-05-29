@@ -1,7 +1,11 @@
 data_folder: "../data"
+dataset_artifact_name: "lsun-bedroom-data"
 cache_folder: "../data/cache"
 sweep_config_folder: "configs/sweeps"
 single_run_config_folder: "configs/single_runs"
 
 project: "DL_PROJECT_DIFFUSION"
 entity: "dl-mini"
+
+dataset_color_mean: [0.5753, 0.5136, 0.4586]
+dataset_color_std: [0.2531, 0.2627, 0.2755]

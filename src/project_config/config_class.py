@@ -7,13 +7,18 @@ class Config:
     """
     Configuration class for the project.
     """
+
     data_folder: str
+    dataset_artifact_name: str
     cache_folder: str
     sweep_config_folder: str
     single_run_config_folder: str
 
     project: str
     entity: str
+
+    dataset_color_mean: list[float]
+    dataset_color_std: list[float]
 
     @classmethod
     def from_yaml(cls, path: str) -> "Config":
