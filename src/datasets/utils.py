@@ -54,5 +54,5 @@ def denormalize(image: Tensor) -> Tensor:
     """Denormalize the image"""
     mean = tensor(config.dataset_color_mean)
     std = tensor(config.dataset_color_std)
-    image = image * std + mean
+    image = image * std.view(1, -1, 1, 1) + mean.view(1, -1, 1, 1)
     return image.clip(0, 1)
