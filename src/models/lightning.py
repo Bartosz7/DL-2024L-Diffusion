@@ -138,15 +138,8 @@ class LightningModel(pl.LightningModule):
         self.log('train/loss', loss, on_epoch=True, on_step=True)
         self.fid_metric.update(denormalize(images), real=True)
         self.fid_metric.update(denormalize(reconstructed_images), real=False)
-        self.log('train/fid', self.fid_metric, on_epoch=True, on_step=True)
+        self.log('train/fid', self.fid_metric.compute(), on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
-
-        images = denormalize(images)
-        grid = make_grid(images)
-        # upload images to W&B
-        self.logger.experiment.log({
-            "train/inference_images": wandb.Image(grid)
-        })
 
         return loss
 
