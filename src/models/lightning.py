@@ -52,8 +52,7 @@ class LightningModel(pl.LightningModule):
 
         self.noise_scheduler = DDPMScheduler(num_train_timesteps=self.num_train_timesteps)
 
-        self.fid_metric = torchmetrics.image.fid.FrechetInceptionDistance()
-        self.validation_images = torch.Tensor([]).to(torch.float32)
+        self.fid_metric = torchmetrics.image.fid.FrechetInceptionDistance(normalize=True)
 
         # Model
         self.best_model_name = ""
@@ -115,9 +114,6 @@ class LightningModel(pl.LightningModule):
         )
         return [optimizer], [{"scheduler": lr_scheduler, "interval": "step"}]
 
-    def on_validation_epoch_start(self):
-        self.validation_images = torch.Tensor([]).to(torch.float32)
-
     def training_step(self, images: list[Tensor], batch_idx: int) -> Tensor:
         images = images[0]
         noise = torch.randn(images.shape, device=self.device)
@@ -140,7 +136,8 @@ class LightningModel(pl.LightningModule):
         reconstructed_images = noisy_images - noise_preds
 
         self.log('train/loss', loss, on_epoch=True, on_step=True)
-        self.fid_metric(denormalize(reconstructed_images), denormalize(images))
+        self.fid_metric(denormalize(images), real=True)
+        self.fid_metric(denormalize(reconstructed_images), real=False)
         self.log('train/fid', self.fid_metric, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
 
