@@ -141,6 +141,13 @@ class LightningModel(pl.LightningModule):
         self.log('train/fid', self.fid_metric, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
 
+        images = denormalize(self.inference(self.eval_size))
+        grid = make_grid(images)
+        # upload images to W&B
+        self.logger.experiment.log({
+            "train/inference_images": wandb.Image(grid)
+        })
+
         return loss
 
     def inference(self, n: int) -> Tensor:
@@ -170,5 +177,5 @@ class LightningModel(pl.LightningModule):
         grid = make_grid(images)
         # upload images to W&B
         self.logger.experiment.log({
-            "inference_images": wandb.Image(grid)
+            "train/inference_images": wandb.Image(grid)
         })
