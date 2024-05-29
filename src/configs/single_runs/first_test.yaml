@@ -1,5 +1,5 @@
-model_name: basic_unet
-epochs: 1
+model_name: unet_test
+epochs: 10
 batch_size: 32
 
 model_class: UNet2DModel
