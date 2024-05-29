@@ -23,6 +23,8 @@ def prepare_session(
         log_every_n_steps=10,
         max_epochs=run_config.epochs,
         callbacks=[lr_monitor],
+        limit_val_batches=0,
+        num_sanity_val_steps=0
     )
 
     model = run_config.model_class(**run_config.model_params)
