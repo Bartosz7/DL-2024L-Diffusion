@@ -4,14 +4,14 @@ from lightning.pytorch.callbacks import LearningRateMonitor
 
 from project_config import config
 from configs.run_config_class import RunConfig
-from dataset.training import TrainingDataset
+from datasets.training import TrainingDataset
 
 
 def prepare_session(
     run_config: RunConfig,
     wandb_logger: WandbLogger,
-) -> tuple[pl.Trainer, None, None]:  # TODO: model and dataset to be implemented
-    data = TrainingDataset(wandb_logger, run_config.batch_size)
+) -> tuple[pl.Trainer, None, TrainingDataset]:
+    data = TrainingDataset(wandb_logger, run_config.batch_size, run_config.image_size)
 
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
     trainer = pl.Trainer(

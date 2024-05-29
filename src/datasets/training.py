@@ -17,6 +17,7 @@ class TrainingDataset(pl.LightningDataModule):
         self,
         wandb_logger: WandbLogger,
         batch_size: int,
+        image_size: int,
         transform: transforms.Compose | None = None,
     ):
         super().__init__()
@@ -25,7 +26,7 @@ class TrainingDataset(pl.LightningDataModule):
         self.train: ImageFolder | None = None
         self.transform = transforms.Compose(
             [
-                transforms.Resize(128, 128),
+                transforms.Resize(image_size),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     config.dataset_color_mean, config.dataset_color_std
@@ -54,6 +55,6 @@ class TrainingDataset(pl.LightningDataModule):
         return DataLoader(
             self.train,
             batch_size=self.batch_size,
-            **self.data_loader_kwargs,
             shuffle=True,
+            **self.data_loader_kwargs,
         )
