@@ -1,8 +1,8 @@
+import torch
 from lightning.pytorch.loggers import WandbLogger
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import LearningRateMonitor
 
-from project_config import config
 from configs.run_config_class import RunConfig
 from datasets.training import TrainingDataset
 from models.lightning import LightningModel
@@ -12,6 +12,8 @@ def prepare_session(
     run_config: RunConfig,
     wandb_logger: WandbLogger,
 ) -> tuple[pl.Trainer, LightningModel, TrainingDataset]:
+    torch.set_float32_matmul_precision(run_config.matmul_precision)
+
     data = TrainingDataset(wandb_logger, run_config.batch_size, run_config.image_size)
     data.prepare_data()  # pre-load data
 

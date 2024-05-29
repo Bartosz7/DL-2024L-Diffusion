@@ -52,7 +52,7 @@ def download_data(wandb_logger: WandbLogger) -> None:
 
 def denormalize(image: Tensor) -> Tensor:
     """Denormalize the image"""
-    mean = tensor(config.dataset_color_mean)
-    std = tensor(config.dataset_color_std)
+    mean = tensor(config.dataset_color_mean, device=image.device)
+    std = tensor(config.dataset_color_std, device=image.device)
     image = image * std.view(1, -1, 1, 1) + mean.view(1, -1, 1, 1)
     return image.clip(0, 1)
