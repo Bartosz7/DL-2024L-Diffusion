@@ -35,5 +35,5 @@ up_block_types:
   - "UpBlock2D"
 
 lr: 0.0001
-lr_warmup_steps: 500
+lr_warmup_steps: 300
 image_size: 128
