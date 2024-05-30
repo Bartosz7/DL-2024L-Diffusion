@@ -59,6 +59,7 @@ class LightningModel(pl.LightningModule):
         self.lowest_loss = float("inf")
         self.lowest_epoch: int | None = None
         self.using_best = False
+        self.train_losses = []
 
         parent_dir = "run_checkpoints"
         if not os.path.exists("run_checkpoints"):
@@ -114,6 +115,9 @@ class LightningModel(pl.LightningModule):
         )
         return [optimizer], [{"scheduler": lr_scheduler, "interval": "step"}]
 
+    def on_train_epoch_start(self):
+        self.train_losses = []
+
     def training_step(self, images: list[Tensor], batch_idx: int) -> Tensor:
         images = images[0]
         noise = torch.randn(images.shape, device=self.device)
@@ -140,6 +144,7 @@ class LightningModel(pl.LightningModule):
         #self.fid_metric.update(denormalize(reconstructed_images), real=False)
         #self.log('train/fid', self.fid_metric.compute(), on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
+        self.train_losses.append(loss.detach().cpu())
 
         return loss
 
@@ -160,10 +165,10 @@ class LightningModel(pl.LightningModule):
             return
         path = self._save_local()
 
-        avg_loss = np.mean(self.valid_losses)
-        if avg_loss < self.lowest_valid_loss:
-            self.lowest_valid_epoch = self.current_epoch
-            self.lowest_valid_loss = avg_loss
+        avg_loss = np.mean(self.train_losses)
+        if avg_loss < self.lowest_loss:
+            self.lowest_epoch = self.current_epoch
+            self.lowest_loss = avg_loss
             self.best_model_name = path
 
         images = denormalize(self.inference(self.eval_size))

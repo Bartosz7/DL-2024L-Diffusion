@@ -17,7 +17,7 @@ def prepare_session(
     data = TrainingDataset(wandb_logger, run_config.batch_size, run_config.image_size)
     data.prepare_data()  # pre-load data
 
-    lr_monitor = LearningRateMonitor(logging_interval="epoch")
+    lr_monitor = LearningRateMonitor(logging_interval="step")
     trainer = pl.Trainer(
         logger=wandb_logger,
         log_every_n_steps=10,
