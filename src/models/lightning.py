@@ -168,6 +168,7 @@ class LightningModel(pl.LightningModule):
 
         self.log('train/loss', loss, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
+        self.train_losses.append(loss.detach().cpu())
 
         self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images)])[:self.fid_sample_size]
         self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images)])[:self.fid_sample_size]
