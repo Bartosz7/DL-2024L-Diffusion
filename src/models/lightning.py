@@ -211,7 +211,7 @@ class LightningModel(pl.LightningModule):
         if self.fid_real_image_sample.shape[0] > 0 and self.fid_recreated_image_sample.shape[0] > 0:
             self.fid_metric.update(self.fid_real_image_sample, real=True)
             self.fid_metric.update(self.fid_recreated_image_sample, real=False)
-            self.logger.experiment.log("validation/fid", self.fid_metric.compute())
+            self.logger.experiment.log({"validation/fid": self.fid_metric.compute()})
             self.fid_metric.reset()
 
         self.fid_real_image_sample = torch.tensor([], dtype=torch.float32,
