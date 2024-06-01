@@ -185,8 +185,7 @@ class LightningModel(pl.LightningModule):
 
         return images
 
-    def validation_step(self, images: list[Tensor], batch_idx: int):
-        images = images[0]
+    def validation_step(self, images: Tensor, batch_idx: int):
         images = self.inference(images)
 
         self.image_examples = torch.cat([self.image_examples, denormalize(images).detach().cpu()])
