@@ -5,21 +5,24 @@ import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from torch.utils.data import DataLoader, Subset, IterableDataset
+from torch.utils.data import DataLoader, Subset, Dataset
 import torch
 
 from project_config import config
 from .utils import download_data
 
 
-class ImageGeneratorDataset(IterableDataset):
+class ImageGeneratorDataset(Dataset):
     def __init__(self, image_size: int, dataset_size: int):
         super().__init__()
         self.dataset_size = dataset_size
         self.image_size = image_size
 
-    def __iter__(self):
-        return iter(torch.randn(self.dataset_size, 3, self.image_size, self.image_size))
+    def __getitem__(self, _index: int):
+        return torch.randn(3, self.image_size, self.image_size)
+
+    def __len__(self) -> int:
+        return self.dataset_size
 
 
 class TrainingDataset(pl.LightningDataModule):
