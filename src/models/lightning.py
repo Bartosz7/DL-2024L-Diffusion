@@ -8,7 +8,7 @@ import torchmetrics
 import lightning.pytorch as pl
 import numpy as np
 import wandb
-from diffusers import DDPMScheduler
+from diffusers import DDPMScheduler, DDPMPipeline
 from torchvision.utils import make_grid
 from diffusers.optimization import get_cosine_schedule_with_warmup
 
@@ -176,8 +176,8 @@ class LightningModel(pl.LightningModule):
         self.log('train/loss', loss, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
 
-        self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images).detach().cpu()])[:self.fid_sample_size]
-        self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images).detach().cpu()])[:self.fid_sample_size]
+        self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images)])[:self.fid_sample_size]
+        self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images)])[:self.fid_sample_size]
         self.fid_denoising_step_sample = torch.cat([self.fid_denoising_step_sample, timesteps.detach().cpu()])[:self.fid_sample_size]
 
         self.train_losses.append(loss.detach().cpu())
