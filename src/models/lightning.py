@@ -175,7 +175,6 @@ class LightningModel(pl.LightningModule):
         return loss
 
     def inference(self, images: Tensor) -> Tensor:
-        print(images.shape)
         self.noise_scheduler.set_timesteps(self.num_inference_steps)
 
         for t in self.noise_scheduler.timesteps:
@@ -198,14 +197,15 @@ class LightningModel(pl.LightningModule):
         })
 
         # log sample denoise comparison images
-        indices = torch.randperm(self.fid_real_image_sample.shape[0])[:self.image_examples.shape[0]]
-        real_images = self.fid_real_image_sample[indices]
-        recreated_images = self.fid_recreated_image_sample[indices]
-        comparison = torch.cat([real_images, recreated_images], dim=0)
-        grid = make_grid(comparison, nrow=self.image_examples.shape[0], normalize=True)
-        self.logger.experiment.log({
-            "validation/denoising_comparison": wandb.Image(grid)
-        })
+        if self.fid_real_image_sample.shape[0] > 0 and self.fid_recreated_image_sample.shape[0] > 0:
+            indices = torch.randperm(self.fid_real_image_sample.shape[0])[:self.image_examples.shape[0]]
+            real_images = self.fid_real_image_sample[indices]
+            recreated_images = self.fid_recreated_image_sample[indices]
+            comparison = torch.cat([real_images, recreated_images], dim=0)
+            grid = make_grid(comparison, nrow=self.image_examples.shape[0], normalize=True)
+            self.logger.experiment.log({
+                "validation/denoising_comparison": wandb.Image(grid)
+            })
 
         # calculate fid
         if self.fid_real_image_sample.shape[0] > 0 and self.fid_recreated_image_sample.shape[0] > 0:
