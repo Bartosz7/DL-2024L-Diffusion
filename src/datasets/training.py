@@ -5,7 +5,7 @@ import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 
 from project_config import config
 from .utils import download_data
@@ -52,9 +52,8 @@ class TrainingDataset(pl.LightningDataModule):
         self.train = ImageFolder(config.cache_folder, transform=self.transform)
 
     def train_dataloader(self) -> DataLoader:
-        subset = Subset(self.train, range(0, 100))
         return DataLoader(
-            subset,
+            self.train,
             batch_size=self.batch_size,
             shuffle=True,
             **self.data_loader_kwargs,
