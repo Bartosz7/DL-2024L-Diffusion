@@ -61,8 +61,8 @@ class LightningModel(pl.LightningModule):
         self.noise_scheduler = DDPMScheduler(num_train_timesteps=self.num_train_timesteps)
 
         self.fid_metric = torchmetrics.image.fid.FrechetInceptionDistance(normalize=True)
-        self.fid_real_image_sample = torch.tensor([], dtype=torch.float32, device=torch.device("cpu"))
-        self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32, device=torch.device("cpu"))
+        self.fid_real_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
+        self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
         self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64, device=torch.device("cpu"))
 
         self.image_examples = torch.tensor([], dtype=torch.float32,
