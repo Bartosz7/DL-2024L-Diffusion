@@ -23,6 +23,7 @@ class RunConfig:
     num_train_timesteps: int = 1000
     num_training_steps: int = 1000
     num_inference_steps: int = 1000
+    validate_every_n_steps: int = 1000
     validation_size: int = 4
     fid_sample_size: int = 100
 
