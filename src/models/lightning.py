@@ -191,7 +191,6 @@ class LightningModel(pl.LightningModule):
         return loss
 
     def inference(self, images: Tensor) -> Tensor:
-        print(images.shape)
         self.noise_scheduler.set_timesteps(self.num_inference_steps)
 
         for t in self.noise_scheduler.timesteps:
