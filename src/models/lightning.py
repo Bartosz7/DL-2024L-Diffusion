@@ -8,7 +8,7 @@ import torchmetrics
 import lightning.pytorch as pl
 import numpy as np
 import wandb
-from diffusers import DDPMScheduler
+from diffusers import DDPMScheduler, DDPMPipeline
 from torchvision.utils import make_grid
 from diffusers.optimization import get_cosine_schedule_with_warmup
 
@@ -166,8 +166,8 @@ class LightningModel(pl.LightningModule):
         self.log('train/loss', loss, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
 
-        self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images).detach().cpu()])[:self.fid_sample_size]
-        self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images).detach().cpu()])[:self.fid_sample_size]
+        self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images)])[:self.fid_sample_size]
+        self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images)])[:self.fid_sample_size]
         self.fid_denoising_step_sample = torch.cat([self.fid_denoising_step_sample, timesteps.detach().cpu()])[:self.fid_sample_size]
 
         self.train_losses.append(loss.detach().cpu())
@@ -199,8 +199,8 @@ class LightningModel(pl.LightningModule):
         # log sample denoise comparison images
         if self.fid_real_image_sample.shape[0] > 0 and self.fid_recreated_image_sample.shape[0] > 0:
             indices = torch.randperm(self.fid_real_image_sample.shape[0])[:self.image_examples.shape[0]]
-            real_images = self.fid_real_image_sample[indices]
-            recreated_images = self.fid_recreated_image_sample[indices]
+            real_images = self.fid_real_image_sample.cpu()[indices]
+            recreated_images = self.fid_recreated_image_sample.cpu()[indices]
             comparison = torch.cat([real_images, recreated_images], dim=0)
             grid = make_grid(comparison, nrow=self.image_examples.shape[0], normalize=True)
             self.logger.experiment.log({
@@ -216,10 +216,8 @@ class LightningModel(pl.LightningModule):
 
         self.fid_real_image_sample = torch.tensor([], dtype=torch.float32,
                                                   device=torch.device("cpu"))
-        self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32,
-                                                       device=torch.device("cpu"))
-        self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64,
-                                                      device=torch.device("cpu"))
+        self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32)
+        self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64)
 
         # save model
         if self.using_best:
