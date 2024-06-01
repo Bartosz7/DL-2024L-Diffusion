@@ -32,6 +32,7 @@ class LightningModel(pl.LightningModule):
         num_training_steps: int,  # total number of steps in training
         num_inference_steps: int,  # how many noise steps to use during inference
         fid_sample_size: int,  # how many images to use for FID calculation
+
         denoise_seed: int = 42,
         upload_best_model: bool = True,
     ):
@@ -60,6 +61,12 @@ class LightningModel(pl.LightningModule):
         self.noise_scheduler = DDPMScheduler(num_train_timesteps=self.num_train_timesteps)
 
         self.fid_metric = torchmetrics.image.fid.FrechetInceptionDistance(normalize=True)
+        self.fid_real_image_sample = torch.tensor([], dtype=torch.float32, device=torch.device("cpu"))
+        self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32, device=torch.device("cpu"))
+        self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64, device=torch.device("cpu"))
+
+        self.image_examples = torch.tensor([], dtype=torch.float32,
+                                           device=torch.device("cpu"))
 
         self.fid_real_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
         self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
@@ -168,6 +175,11 @@ class LightningModel(pl.LightningModule):
 
         self.log('train/loss', loss, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
+
+        self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images).detach().cpu()])[:self.fid_sample_size]
+        self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images).detach().cpu()])[:self.fid_sample_size]
+        self.fid_denoising_step_sample = torch.cat([self.fid_denoising_step_sample, timesteps.detach().cpu()])[:self.fid_sample_size]
+
         self.train_losses.append(loss.detach().cpu())
 
         self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images)])[:self.fid_sample_size]

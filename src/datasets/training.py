@@ -71,7 +71,7 @@ class TrainingDataset(pl.LightningDataModule):
     def train_dataloader(self) -> DataLoader:
         #subset = Subset(self.train, range(0, 100))
         return DataLoader(
-            self.train,
+            subset,
             batch_size=self.batch_size,
             shuffle=True,
             **self.data_loader_kwargs,
