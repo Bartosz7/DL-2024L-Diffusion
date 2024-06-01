@@ -61,6 +61,7 @@ class TrainingDataset(pl.LightningDataModule):
         return data
 
     def prepare_data(self) -> None:
+        print("prepare")
         download_data(self.logger)
         self.train = ImageFolder(config.cache_folder, transform=self.transform)
 
