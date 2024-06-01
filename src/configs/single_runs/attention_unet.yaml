@@ -1,6 +1,6 @@
 model_name: attention_unet_test
 epochs: 5
-batch_size: 32
+batch_size: 16
 
 model_class: UNet2DModel
 model_params:
