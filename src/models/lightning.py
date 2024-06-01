@@ -178,7 +178,6 @@ class LightningModel(pl.LightningModule):
         self.noise_scheduler.set_timesteps(self.num_inference_steps)
 
         for t in self.noise_scheduler.timesteps:
-            print(images.shape)
             predicted_noise = self.forward(images, t)
 
             images = self.noise_scheduler.step(predicted_noise, t, images, generator=torch.Generator(device='cpu').manual_seed(self.denoise_seed)).prev_sample

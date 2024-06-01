@@ -21,9 +21,6 @@ class ImageGeneratorDataset(IterableDataset):
     def __iter__(self):
         return iter(torch.randn(self.dataset_size, 3, self.image_size, self.image_size))
 
-    def __len__(self):
-        return self.dataset_size
-
 
 class TrainingDataset(pl.LightningDataModule):
 
