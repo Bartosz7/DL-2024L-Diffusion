@@ -1,4 +1,4 @@
-model_name: unet_test
+model_name: attention_unet_test
 epochs: 5
 batch_size: 32
 
