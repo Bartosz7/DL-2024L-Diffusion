@@ -192,7 +192,7 @@ class LightningModel(pl.LightningModule):
 
     def on_validation_end(self):
         # log sample images
-        grid = make_grid(self.image_examples)
+        grid = make_grid(self.image_examples, nrow=self.image_examples.shape[0], normalize=True)
         self.logger.experiment.log({
             "validation/inference_images": wandb.Image(grid)
         })
@@ -202,7 +202,7 @@ class LightningModel(pl.LightningModule):
         real_images = self.fid_real_image_sample[indices]
         recreated_images = self.fid_recreated_image_sample[indices]
         comparison = torch.cat([real_images, recreated_images], dim=0)
-        grid = make_grid(comparison)
+        grid = make_grid(comparison, nrow=self.image_examples.shape[0], normalize=True)
         self.logger.experiment.log({
             "validation/denoising_comparison": wandb.Image(grid)
         })
