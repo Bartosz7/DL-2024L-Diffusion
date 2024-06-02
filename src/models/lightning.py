@@ -183,6 +183,7 @@ class LightningModel(pl.LightningModule):
             predicted_noise = self.forward(images, t)
 
             images = self.noise_scheduler.step(predicted_noise, t, images, generator=self.generator).prev_sample
+            break
 
         return images
 
