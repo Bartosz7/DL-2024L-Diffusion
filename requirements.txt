@@ -6,7 +6,7 @@ notebook
 wandb
 tqdm
 lightning
-torchmetrics
+torchmetrics[image]
 numpy
 pandas
 scikit-learn
