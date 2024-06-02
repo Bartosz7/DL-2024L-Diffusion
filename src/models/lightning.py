@@ -98,7 +98,7 @@ class LightningModel(pl.LightningModule):
 
     def _save_remote(self, filename: str, **metadata):
         artifact = wandb.Artifact(
-            name=filename,
+            name=self.model_name,
             type=ArtifactType.MODEL.value,
             metadata=metadata
         )
@@ -176,9 +176,9 @@ class LightningModel(pl.LightningModule):
         self.log('train/loss', loss, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
 
-        self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images)])[:self.fid_sample_size]
-        self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images)])[:self.fid_sample_size]
-        self.fid_denoising_step_sample = torch.cat([self.fid_denoising_step_sample, timesteps.detach().cpu()])[:self.fid_sample_size]
+        self.fid_real_image_sample = torch.cat([denormalize(images), self.fid_real_image_sample])[:self.fid_sample_size]
+        self.fid_recreated_image_sample = torch.cat([denormalize(reconstructed_images), self.fid_recreated_image_sample])[:self.fid_sample_size]
+        self.fid_denoising_step_sample = torch.cat([timesteps.detach().cpu(), self.fid_denoising_step_sample])[:self.fid_sample_size]
 
         self.train_losses.append(loss.detach().cpu())
 

@@ -1,3 +1,5 @@
+import math
+
 import torch
 from lightning.pytorch.loggers import WandbLogger
 import lightning.pytorch as pl
@@ -41,7 +43,7 @@ def prepare_session(
         run_config.lr_warmup_steps,
         # training params
         run_config.num_train_timesteps,
-        len(data.train) * run_config.epochs,
+        math.ceil(len(data.train) / run_config.batch_size) * run_config.epochs,
         run_config.num_inference_steps,
         run_config.fid_sample_size,
     )
