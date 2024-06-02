@@ -9,6 +9,7 @@ from torchvision.utils import make_grid
 from configs.run_config_class import RunConfig
 from models.lightning import LightningModel
 from datasets.utils import denormalize
+from project_config import config
 
 
 if __name__ == "__main__":
@@ -64,10 +65,8 @@ if __name__ == "__main__":
         pl_model = pl_model.cuda()
 
     pl_model.load_local(args.weights)
-    print(pl_model.device)
 
     images = torch.randn(args.num_samples, 3, run_config.image_size, run_config.image_size, device=pl_model.device)
-    print(images.shape)
     with torch.no_grad():
         images = pl_model.inference(images)
     grid = make_grid(denormalize(images).cpu())
@@ -76,5 +75,7 @@ if __name__ == "__main__":
     plt.imshow(grid.permute(1, 2, 0))
     plt.axis('off')
     plt.title("Real vs Recreated Images")
-    plt.show()
 
+    folder_path = os.path.join(config.data_folder, "inference_images")
+    os.makedirs(folder_path, exist_ok=True)
+    plt.savefig(os.path.join(folder_path, f"{'-'.join(args.weights.split(os.sep)[-2:])}.png"))
