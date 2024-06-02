@@ -9,6 +9,7 @@ from torchvision.utils import make_grid
 from configs.run_config_class import RunConfig
 from models.lightning import LightningModel
 from datasets.utils import denormalize
+from project_config import config
 
 from project_config import config
 
@@ -66,7 +67,6 @@ if __name__ == "__main__":
         pl_model = pl_model.cuda()
 
     pl_model.load_local(args.weights)
-    print(pl_model.device)
 
     images = torch.randn(args.num_samples, 3, run_config.image_size, run_config.image_size, device=pl_model.device)
     with torch.no_grad():
