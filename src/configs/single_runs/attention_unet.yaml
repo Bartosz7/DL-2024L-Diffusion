@@ -15,7 +15,7 @@ model_params:
 sample_size: 128
 layers_per_block: 2
 block_out_channels:
-  - 128
+  - 64
   - 128
   - 256
   - 256
