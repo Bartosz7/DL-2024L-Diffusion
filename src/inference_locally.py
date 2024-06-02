@@ -66,10 +66,12 @@ if __name__ == "__main__":
         pl_model = pl_model.cuda()
 
     pl_model.load_local(args.weights)
+    print(pl_model.device)
 
     images = torch.randn(args.num_samples, 3, run_config.image_size, run_config.image_size, device=pl_model.device)
     with torch.no_grad():
         images = pl_model.inference(images)
+
     grid = make_grid(denormalize(images).cpu())
 
     plt.figure(figsize=(15, 15))
