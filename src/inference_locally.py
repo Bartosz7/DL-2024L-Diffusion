@@ -42,7 +42,9 @@ if __name__ == "__main__":
     with open(os.path.join("configs", "single_runs", f"{args.yaml_file}.yaml"), "r") as file:
         run_config = RunConfig.from_dict(yaml.safe_load(file))
 
-    model = run_config.model_class(**run_config.model_params)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = run_config.model_class(**run_config.model_params).to(device)
     pl_model = LightningModel(
         # model
         model,
@@ -58,6 +60,9 @@ if __name__ == "__main__":
         run_config.num_inference_steps,
         run_config.fid_sample_size,  # not important
     )
+    if torch.cuda.is_available():
+        pl_model = pl_model.cuda()
+
     pl_model.load_local(args.weights)
     print(pl_model.device)
 
