@@ -59,11 +59,12 @@ if __name__ == "__main__":
         run_config.fid_sample_size,  # not important
     )
     pl_model.load_local(args.weights)
+    print(pl_model.device)
 
-    images = torch.randn(args.num_samples, 3, run_config.image_size, run_config.image_size)
+    images = torch.randn(args.num_samples, 3, run_config.image_size, run_config.image_size, device=pl_model.device)
 
     images = pl_model.inference(images)
-    grid = make_grid(denormalize(images))
+    grid = make_grid(denormalize(images).cpu())
 
     plt.figure(figsize=(15, 15))
     plt.imshow(grid.permute(1, 2, 0))
