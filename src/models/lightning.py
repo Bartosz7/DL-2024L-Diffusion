@@ -57,6 +57,7 @@ class LightningModel(pl.LightningModule):
         self.upload_best_model = upload_best_model
         self.log_test = True
 
+        self.generator = torch.Generator(device='cpu').manual_seed(self.denoise_seed)
         self.noise_scheduler = DDPMScheduler(num_train_timesteps=self.num_train_timesteps)
 
         self.fid_metric = torchmetrics.image.fid.FrechetInceptionDistance(normalize=True)
@@ -80,6 +81,7 @@ class LightningModel(pl.LightningModule):
             os.mkdir(parent_dir)
         self.run_dir = os.path.join(parent_dir, f"runs_{uuid.uuid4().hex}")
         os.mkdir(self.run_dir)
+        print("RUN DIR: ", self.run_dir)
 
     def _save_local(self):
         path = os.path.join(self.run_dir, f"epoch_{self.current_epoch}_step_{self.global_step}.pth")
@@ -94,7 +96,7 @@ class LightningModel(pl.LightningModule):
             metadata=metadata
         )
 
-        with artifact.new_file(filename + ".pth", mode="wb") as file:
+        with artifact.new_file(os.path.basename(filename), mode="wb") as file:
             torch.save(self.state_dict(), file)
 
         return self.logger.experiment.log_artifact(artifact)
@@ -180,7 +182,7 @@ class LightningModel(pl.LightningModule):
         for t in self.noise_scheduler.timesteps:
             predicted_noise = self.forward(images, t)
 
-            images = self.noise_scheduler.step(predicted_noise, t, images, generator=torch.Generator(device='cpu').manual_seed(self.denoise_seed)).prev_sample
+            images = self.noise_scheduler.step(predicted_noise, t, images, generator=self.generator).prev_sample
 
         return images
 
