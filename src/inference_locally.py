@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
     images = torch.randn(args.num_samples, 3, run_config.image_size, run_config.image_size, device=pl_model.device)
     print(images.shape)
-    images = pl_model.inference(images)
+    with torch.no_grad():
+        images = pl_model.inference(images)
     grid = make_grid(denormalize(images).cpu())
 
     plt.figure(figsize=(15, 15))
