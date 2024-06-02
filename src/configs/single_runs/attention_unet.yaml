@@ -18,8 +18,8 @@ block_out_channels:
   - 64
   - 128
   - 256
+  - 256
   - 512
-  - 1024
 down_block_types:
   - "DownBlock2D"  # a regular ResNet downsampling block
   - "AttnDownBlock2D"  # a ResNet downsampling block with spatial self-attention
