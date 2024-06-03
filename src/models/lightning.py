@@ -68,13 +68,6 @@ class LightningModel(pl.LightningModule):
         self.image_examples = torch.tensor([], dtype=torch.float32,
                                            device=torch.device("cpu"))
 
-        self.fid_real_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
-        self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
-        self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64, device=torch.device("cpu"))
-
-        self.image_examples = torch.tensor([], dtype=torch.float32,
-                                           device=torch.device("cpu"))
-
         # Model
         self.best_model_name = ""
         self.lowest_loss = float("inf")
@@ -179,12 +172,6 @@ class LightningModel(pl.LightningModule):
         self.fid_real_image_sample = torch.cat([denormalize(images), self.fid_real_image_sample])[:self.fid_sample_size]
         self.fid_recreated_image_sample = torch.cat([denormalize(reconstructed_images), self.fid_recreated_image_sample])[:self.fid_sample_size]
         self.fid_denoising_step_sample = torch.cat([timesteps.detach().cpu(), self.fid_denoising_step_sample])[:self.fid_sample_size]
-
-        self.train_losses.append(loss.detach().cpu())
-
-        self.fid_real_image_sample = torch.cat([self.fid_real_image_sample, denormalize(images)])[:self.fid_sample_size]
-        self.fid_recreated_image_sample = torch.cat([self.fid_recreated_image_sample, denormalize(reconstructed_images)])[:self.fid_sample_size]
-        self.fid_denoising_step_sample = torch.cat([self.fid_denoising_step_sample, timesteps.detach().cpu()])[:self.fid_sample_size]
 
         self.train_losses.append(loss.detach().cpu())
 

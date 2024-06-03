@@ -2,6 +2,7 @@ model_name: attention_unet
 epochs: 1
 batch_size: 16
 
+validate_every_n_steps: 2000
 
 model_class: UNet2DModel
 model_params:
