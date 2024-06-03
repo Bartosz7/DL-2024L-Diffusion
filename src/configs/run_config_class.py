@@ -29,24 +29,6 @@ class RunConfig:
 
     matmul_precision: str = "medium"
 
-    model_class: Type[nn.Module]
-    model_params: dict
-    model_name: str
-
-    lr: float
-    betas: tuple[float, float]
-    lr_warmup_steps: int
-    l2_penalty: float = 0.01
-
-    num_train_timesteps: int = 1000
-    num_training_steps: int = 1000
-    num_inference_steps: int = 1000
-    validate_every_n_steps: int = 1000
-    validation_size: int = 4
-    fid_sample_size: int = 100
-
-    matmul_precision: str = "medium"
-
     @classmethod
     def from_dict(cls, data: dict) -> "RunConfig":
         """
