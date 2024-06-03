@@ -111,9 +111,10 @@ class LightningModel(pl.LightningModule):
     def forward(self, noisy_images: Tensor, time_steps: Tensor) -> Tensor:
         return self.model(noisy_images, time_steps, return_dict=False)[0]
 
-    def loss(self, noisy_images: Tensor, time_steps: Tensor, noise: Tensor) -> tuple[Tensor, Tensor]:
-        noise_pred = self(noisy_images, time_steps)
-        loss = F.mse_loss(noise_pred, noise)
+    def loss(self, noisy_images: Tensor, time_steps: Tensor, true_images: Tensor) -> tuple[Tensor, Tensor]:
+        noise_pred = self.forward(noisy_images, time_steps)
+        denoised_images = noisy_images - noise_pred
+        loss = F.mse_loss(denoised_images, true_images)
 
         return noise_pred, loss
 
@@ -160,7 +161,7 @@ class LightningModel(pl.LightningModule):
         # (this is the forward diffusion process)
         noisy_images = self.noise_scheduler.add_noise(images, noise, timesteps)
 
-        noise_preds, loss = self.loss(noisy_images, timesteps, noise)
+        noise_preds, loss = self.loss(noisy_images, timesteps, images)
         self.using_best = False
 
         reconstructed_images = noisy_images - noise_preds
