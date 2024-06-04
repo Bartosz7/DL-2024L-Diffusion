@@ -26,6 +26,8 @@ class RunConfig:
     validate_every_n_steps: int = 1000
     validation_size: int = 4
     fid_sample_size: int = 100
+    gradient_clipping: float = 0.0
+    accumulate_grad_batches: int = 1
 
     matmul_precision: str = "medium"
 

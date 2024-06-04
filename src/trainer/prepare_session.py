@@ -28,6 +28,8 @@ def prepare_session(
         val_check_interval=run_config.validate_every_n_steps,
         check_val_every_n_epoch=None,
         num_sanity_val_steps=0,
+        accumulate_grad_batches=run_config.accumulate_grad_batches,
+        gradient_clip_val=run_config.gradient_clipping,
     )
 
     model = run_config.model_class(**run_config.model_params)
