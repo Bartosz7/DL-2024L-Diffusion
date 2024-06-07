@@ -13,13 +13,14 @@ from .utils import download_data
 
 
 class ImageGeneratorDataset(Dataset):
-    def __init__(self, image_size: int, dataset_size: int):
+    def __init__(self, image_size: int, dataset_size: int, denoise_seed: int = 42):
         super().__init__()
         self.dataset_size = dataset_size
         self.image_size = image_size
+        self.generator = torch.Generator(device='cpu').manual_seed(denoise_seed)
 
     def __getitem__(self, _index: int):
-        return torch.randn(3, self.image_size, self.image_size)
+        return torch.randn(3, self.image_size, self.image_size, generator=self.generator)
 
     def __len__(self) -> int:
         return self.dataset_size

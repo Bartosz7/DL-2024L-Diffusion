@@ -1,8 +1,8 @@
 model_name: attention_unet
-epochs: 1
-batch_size: 16
+epochs: 7
+batch_size: 8
 
-validate_every_n_steps: 2000
+validate_every_n_steps: 8000
 
 model_class: UNet2DModel
 model_params:
@@ -12,32 +12,36 @@ model_params:
   - down_block_types
   - up_block_types
 
-sample_size: 128
+sample_size: 256
 layers_per_block: 2
 block_out_channels:
-  - 64
+  - 128
   - 128
   - 256
   - 256
   - 256
   - 512
+  - 512
 down_block_types:
   - "DownBlock2D"  # a regular ResNet downsampling block
-  - "DownBlock2D"  # a regular ResNet downsampling block
+  - "DownBlock2D"
+  - "DownBlock2D"
+  - "DownBlock2D"
   - "AttnDownBlock2D"  # a ResNet downsampling block with spatial self-attention
   - "AttnDownBlock2D"
-  - "AttnDownBlock2D"
-  - "AttnDownBlock2D"
+  - "DownBlock2D"
 up_block_types:
-  - "AttnUpBlock2D"  # a ResNet upsampling block with spatial self-attention
+  - "UpBlock2D"  # a ResNet upsampling block with spatial self-attention
   - "AttnUpBlock2D"
   - "AttnUpBlock2D"
-  - "AttnUpBlock2D"
+  - "UpBlock2D"
+  - "UpBlock2D"
   - "UpBlock2D"  # a regular ResNet upsampling block
   - "UpBlock2D"
 
 lr: 0.0001
-lr_warmup_steps: 0
-image_size: 128
+lr_warmup_steps: 500
+image_size: 256
 
 gradient_clipping: 1.0
+validation_size: 16

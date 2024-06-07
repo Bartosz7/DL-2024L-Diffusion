@@ -164,5 +164,7 @@ wandb/
 run_checkpoints/
 DL_PROJECT_DIFFUSION/
 artifacts/
+ddpm-*/
+nohup*
 
 !/**/.gitkeep

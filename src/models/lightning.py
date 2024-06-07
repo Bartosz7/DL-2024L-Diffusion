@@ -8,15 +8,15 @@ import torchmetrics
 import lightning.pytorch as pl
 import numpy as np
 import wandb
-from diffusers import DDPMScheduler, DDPMPipeline
+from diffusers import DDPMScheduler
 from torchvision.utils import make_grid
 from diffusers.optimization import get_cosine_schedule_with_warmup
 
 from project_config import ArtifactType
-from datasets.utils import denormalize
+from dataloaders.utils import denormalize
 
 
-class LightningModel(pl.LightningModule):
+class LightningDiffusionModel(pl.LightningModule):
     def __init__(
         self,
         # model
@@ -63,10 +63,11 @@ class LightningModel(pl.LightningModule):
         self.fid_metric = torchmetrics.image.fid.FrechetInceptionDistance(normalize=True)
         self.fid_real_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
         self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
+        self.fid_noisy_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
         self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64, device=torch.device("cpu"))
 
         self.image_examples = torch.tensor([], dtype=torch.float32,
-                                           device=torch.device("cpu"))
+                                           device=self.device)
 
         # Model
         self.best_model_name = ""
@@ -138,11 +139,12 @@ class LightningModel(pl.LightningModule):
                                                   device=self.device)
         self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32,
                                                        device=self.device)
+        self.fid_noisy_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
         self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64,
                                                       device=torch.device("cpu"))
 
     def on_validation_start(self):
-        self.image_examples = torch.tensor([], dtype=torch.float32, device=torch.device("cpu"))
+        self.image_examples = torch.tensor([], dtype=torch.float32, device=self.device)
 
     def training_step(self, images: list[Tensor], batch_idx: int) -> Tensor:
         images = images[0]
@@ -168,8 +170,9 @@ class LightningModel(pl.LightningModule):
         self.log('train/loss', loss, on_epoch=True, on_step=True)
         self.log("train/epoch", self.current_epoch, on_epoch=False, on_step=True)
 
-        self.fid_real_image_sample = torch.cat([denormalize(images), self.fid_real_image_sample])[:self.fid_sample_size]
-        self.fid_recreated_image_sample = torch.cat([denormalize(reconstructed_images), self.fid_recreated_image_sample])[:self.fid_sample_size]
+        self.fid_real_image_sample = torch.cat([denormalize(images.detach()), self.fid_real_image_sample])[:self.fid_sample_size]
+        self.fid_recreated_image_sample = torch.cat([denormalize(reconstructed_images.detach()), self.fid_recreated_image_sample])[:self.fid_sample_size]
+        self.fid_noisy_image_sample = torch.cat([denormalize(noisy_images.detach()), self.fid_noisy_image_sample])[:self.fid_sample_size]
         self.fid_denoising_step_sample = torch.cat([timesteps.detach().cpu(), self.fid_denoising_step_sample])[:self.fid_sample_size]
 
         self.train_losses.append(loss.detach().cpu())
@@ -189,21 +192,22 @@ class LightningModel(pl.LightningModule):
     def validation_step(self, images: Tensor, batch_idx: int):
         images = self.inference(images)
 
-        self.image_examples = torch.cat([self.image_examples, denormalize(images).detach().cpu()])
+        self.image_examples = torch.cat([self.image_examples, denormalize(images).detach()])
 
     def on_validation_end(self):
         # log sample images
-        grid = make_grid(self.image_examples, nrow=self.image_examples.shape[0], normalize=True)
+        grid = make_grid(self.image_examples.cpu(), nrow=4, normalize=True)
         self.logger.experiment.log({
             "validation/inference_images": wandb.Image(grid)
         })
 
         # log sample denoise comparison images
         if self.fid_real_image_sample.shape[0] > 0 and self.fid_recreated_image_sample.shape[0] > 0:
-            indices = torch.randperm(self.fid_real_image_sample.shape[0])[:self.image_examples.shape[0]]
+            indices = torch.randperm(self.fid_real_image_sample.shape[0], generator=self.generator)[:self.image_examples.shape[0]]
             real_images = self.fid_real_image_sample.cpu()[indices]
             recreated_images = self.fid_recreated_image_sample.cpu()[indices]
-            comparison = torch.cat([real_images, recreated_images], dim=0)
+            noisy_images = self.fid_noisy_image_sample.cpu()[indices]
+            comparison = torch.cat([real_images, noisy_images, recreated_images], dim=0)
             grid = make_grid(comparison, nrow=self.image_examples.shape[0], normalize=True)
             self.logger.experiment.log({
                 "validation/denoising_comparison": wandb.Image(grid)
@@ -211,8 +215,8 @@ class LightningModel(pl.LightningModule):
 
         # calculate fid
         if self.fid_real_image_sample.shape[0] > 0 and self.fid_recreated_image_sample.shape[0] > 0:
-            self.fid_metric.update(self.fid_real_image_sample, real=True)
-            self.fid_metric.update(self.fid_recreated_image_sample, real=False)
+            self.fid_metric.update(self.fid_real_image_sample[:self.image_examples.shape[0]], real=True)
+            self.fid_metric.update(self.image_examples, real=False)
             self.logger.experiment.log({"validation/fid": self.fid_metric.compute()})
             self.fid_metric.reset()
 
@@ -220,6 +224,7 @@ class LightningModel(pl.LightningModule):
                                                   device=self.device)
         self.fid_recreated_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
         self.fid_denoising_step_sample = torch.tensor([], dtype=torch.int64, device=torch.device("cpu"))
+        self.fid_noisy_image_sample = torch.tensor([], dtype=torch.float32, device=self.device)
 
         # save model
         if self.using_best:
@@ -232,6 +237,8 @@ class LightningModel(pl.LightningModule):
             self.lowest_step = self.global_step
             self.lowest_loss = avg_loss
             self.best_model_name = path
+
+        self.train_losses = []
 
     def on_train_end(self):
         if self.upload_best_model:

@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from torchvision.utils import make_grid
 
 from configs.run_config_class import RunConfig
-from models.lightning import LightningModel
-from datasets.utils import denormalize
+from models.lightning import LightningDiffusionModel
+from dataloaders.utils import denormalize
 
 from project_config import config
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = run_config.model_class(**run_config.model_params).to(device)
-    pl_model = LightningModel(
+    pl_model = LightningDiffusionModel(
         # model
         model,
         run_config.model_name,  # not important

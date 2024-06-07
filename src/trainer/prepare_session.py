@@ -6,14 +6,14 @@ import lightning.pytorch as pl
 from lightning.pytorch.callbacks import LearningRateMonitor
 
 from configs.run_config_class import RunConfig
-from datasets.training import TrainingDataset
-from models.lightning import LightningModel
+from dataloaders.training import TrainingDataset
+from models.lightning import LightningDiffusionModel
 
 
 def prepare_session(
     run_config: RunConfig,
     wandb_logger: WandbLogger,
-) -> tuple[pl.Trainer, LightningModel, TrainingDataset]:
+) -> tuple[pl.Trainer, LightningDiffusionModel, TrainingDataset]:
     torch.set_float32_matmul_precision(run_config.matmul_precision)
 
     data = TrainingDataset(wandb_logger, run_config.batch_size, run_config.image_size, run_config.validation_size)
@@ -34,7 +34,7 @@ def prepare_session(
 
     model = run_config.model_class(**run_config.model_params)
 
-    pl_model = LightningModel(
+    pl_model = LightningDiffusionModel(
         # model
         model,
         run_config.model_name,
