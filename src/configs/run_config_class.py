@@ -28,6 +28,9 @@ class RunConfig:
     fid_sample_size: int = 100
     gradient_clipping: float = 0.0
     accumulate_grad_batches: int = 1
+    vae_weights: str = "runwayml/stable-diffusion-v1-5"
+    vae_latent_space_size: int | None = None
+    channels: int = 3
 
     matmul_precision: str = "medium"
 

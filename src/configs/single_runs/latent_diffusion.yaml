@@ -1,0 +1,37 @@
+model_name: latent_diffusion
+epochs: 20
+batch_size: 256
+channels: 4
+
+validate_every_n_steps: 2000
+
+model_class: UNet2DModel
+vae_latent_space_size: 32
+model_params:
+  - sample_size
+  - layers_per_block
+  - block_out_channels
+  - down_block_types
+  - up_block_types
+
+sample_size: 256
+layers_per_block: 2
+block_out_channels:
+  - 128
+  - 256
+  - 256
+down_block_types:
+  - "DownBlock2D"  # a regular ResNet downsampling block
+  - "AttnDownBlock2D"  # a ResNet downsampling block with spatial self-attention
+  - "AttnDownBlock2D"
+up_block_types:
+  - "AttnUpBlock2D" # a ResNet upsampling block with spatial self-attention
+  - "AttnUpBlock2D"
+  - "UpBlock2D"  # a regular ResNet upsampling block
+
+lr: 0.0001
+lr_warmup_steps: 500
+image_size: 256
+
+gradient_clipping: 1.0
+validation_size: 16

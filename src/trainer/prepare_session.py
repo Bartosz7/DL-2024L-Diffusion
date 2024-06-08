@@ -4,10 +4,12 @@ import torch
 from lightning.pytorch.loggers import WandbLogger
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import LearningRateMonitor
+from diffusers import AutoencoderKL
 
 from configs.run_config_class import RunConfig
 from dataloaders.training import TrainingDataset
-from models.lightning import LightningDiffusionModel
+from models.lightning_diffusion import LightningDiffusionModel
+from models.lightning_latent_diffusion import LightningLatentDiffusionModel
 
 
 def prepare_session(
@@ -16,7 +18,7 @@ def prepare_session(
 ) -> tuple[pl.Trainer, LightningDiffusionModel, TrainingDataset]:
     torch.set_float32_matmul_precision(run_config.matmul_precision)
 
-    data = TrainingDataset(wandb_logger, run_config.batch_size, run_config.image_size, run_config.validation_size)
+    data = TrainingDataset(wandb_logger, run_config.batch_size, run_config.image_size, run_config.validation_size, run_config.channels, run_config.vae_latent_space_size)
     data.prepare_data()  # pre-load data
 
     lr_monitor = LearningRateMonitor(logging_interval="step")
@@ -32,9 +34,21 @@ def prepare_session(
         gradient_clip_val=run_config.gradient_clipping,
     )
 
-    model = run_config.model_class(**run_config.model_params)
+    model = run_config.model_class(
+        in_channels=run_config.channels,
+        out_channels=run_config.channels,
+        **run_config.model_params,
+    )
+    vae = None
+    if run_config.vae_latent_space_size is not None:
+        vae = AutoencoderKL.from_pretrained(
+            run_config.vae_weights,
+            subfolder="vae",
+            use_safetensors=True,
+            image_size=run_config.image_size,
+        )
 
-    pl_model = LightningDiffusionModel(
+    arguments = [
         # model
         model,
         run_config.model_name,
@@ -48,6 +62,10 @@ def prepare_session(
         math.ceil(len(data.train) / run_config.batch_size) * run_config.epochs,
         run_config.num_inference_steps,
         run_config.fid_sample_size,
-    )
+    ]
+    if vae is not None:
+        pl_model = LightningLatentDiffusionModel(vae, *arguments)
+    else:
+        pl_model = LightningDiffusionModel(*arguments)
 
     return trainer, pl_model, data

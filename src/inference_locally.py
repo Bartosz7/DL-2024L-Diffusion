@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from torchvision.utils import make_grid
 
 from configs.run_config_class import RunConfig
-from models.lightning import LightningDiffusionModel
+from models.lightning_diffusion import LightningDiffusionModel
 from dataloaders.utils import denormalize
 
 from project_config import config

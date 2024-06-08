@@ -13,14 +13,15 @@ from .utils import download_data
 
 
 class ImageGeneratorDataset(Dataset):
-    def __init__(self, image_size: int, dataset_size: int, denoise_seed: int = 42):
+    def __init__(self, image_size: int, dataset_size: int, channels: int, denoise_seed: int = 42):
         super().__init__()
         self.dataset_size = dataset_size
         self.image_size = image_size
+        self.channels = channels
         self.generator = torch.Generator(device='cpu').manual_seed(denoise_seed)
 
     def __getitem__(self, _index: int):
-        return torch.randn(3, self.image_size, self.image_size, generator=self.generator)
+        return torch.randn(channels, self.image_size, self.image_size, generator=self.generator)
 
     def __len__(self) -> int:
         return self.dataset_size
@@ -34,13 +35,15 @@ class TrainingDataset(pl.LightningDataModule):
         batch_size: int,
         image_size: int,
         validation_size: int,
+        channels: int,
+        validation_image_size: int | None = None,
         transform: transforms.Compose | None = None,
     ):
         super().__init__()
         self.logger = wandb_logger
         self.batch_size = batch_size
         self.train: ImageFolder | None = None
-        self.validation = ImageGeneratorDataset(image_size, validation_size)
+        self.validation = ImageGeneratorDataset(validation_image_size or image_size, validation_size, channels)
         self.transform = transforms.Compose(
             [
                 transforms.Resize((image_size, image_size)),
@@ -65,7 +68,6 @@ class TrainingDataset(pl.LightningDataModule):
         return data
 
     def prepare_data(self) -> None:
-        print("prepare")
         download_data(self.logger)
         self.train = ImageFolder(config.cache_folder, transform=self.transform)
 
