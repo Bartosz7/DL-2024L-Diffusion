@@ -21,7 +21,7 @@ class ImageGeneratorDataset(Dataset):
         self.generator = torch.Generator(device='cpu').manual_seed(denoise_seed)
 
     def __getitem__(self, _index: int):
-        return torch.randn(channels, self.image_size, self.image_size, generator=self.generator)
+        return torch.randn(self.channels, self.image_size, self.image_size, generator=self.generator)
 
     def __len__(self) -> int:
         return self.dataset_size

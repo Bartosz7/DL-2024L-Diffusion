@@ -47,6 +47,11 @@ def prepare_session(
             use_safetensors=True,
             image_size=run_config.image_size,
         )
+        for param in vae.encoder.parameters():
+            param.requires_grad = False
+
+        for param in vae.decoder.parameters():
+            param.requires_grad = False
 
     arguments = [
         # model
