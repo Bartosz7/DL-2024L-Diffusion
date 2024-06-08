@@ -13,6 +13,7 @@ model_params:
   - block_out_channels
   - down_block_types
   - up_block_types
+  - attention_head_dim
 
 sample_size: 256
 layers_per_block: 2
@@ -20,14 +21,18 @@ block_out_channels:
   - 128
   - 256
   - 256
+  - 512
 down_block_types:
   - "DownBlock2D"  # a regular ResNet downsampling block
   - "AttnDownBlock2D"  # a ResNet downsampling block with spatial self-attention
   - "AttnDownBlock2D"
+  - "AttnDownBlock2D"
 up_block_types:
+  - "AttnUpBlock2D"
   - "AttnUpBlock2D" # a ResNet upsampling block with spatial self-attention
   - "AttnUpBlock2D"
   - "UpBlock2D"  # a regular ResNet upsampling block
+attention_head_dim: 32
 
 lr: 0.0001
 lr_warmup_steps: 500
